@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABC Telecom - Postpaid Billing System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        .auth-form {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .link-btn {
+            background: none;
+            color: #667eea;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 0;
+            width: auto;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 30px;
+            gap: 10px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: #666;
+            padding: 15px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            position: relative;
+            bottom: -2px;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .table thead {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid white;
+            padding: 8px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .table {
+                font-size: 12px;
+            }
+
+            .table th, .table td {
+                padding: 8px;
+            }
+
+            .navbar {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>ABC Telecom</h1>
+            <p>Postpaid Billing System</p>
+        </div>
+
+        <div class="content">
+            <!-- Login View -->
+            <div id="login-view" class="view active">
+                <div class="auth-form">
+                    <h2 style="margin-bottom: 30px; color: #333; text-align: center;">Login</h2>
+                    <div id="login-message"></div>
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="login-username" placeholder="Enter your username">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="login-password" placeholder="Enter your password">
+                    </div>
+                    <button class="btn" onclick="login()">Login</button>
+                    <button class="link-btn" onclick="switchView('register-view')">Don't have an account? Register</button>
+                </div>
+            </div>
+
+            <!-- Register View -->
+            <div id="register-view" class="view">
+                <div class="auth-form">
+                    <h2 style="margin-bottom: 30px; color: #333; text-align: center;">Register</h2>
+                    <div id="register-message"></div>
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="register-username">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="register-email">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="register-password">
+                    </div>
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="register-fullname">
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <textarea id="register-address" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" id="register-phone">
+                    </div>
+                    <button class="btn" onclick="register()">Register</button>
+                    <button class="link-btn" onclick="switchView('login-view')">Already have an account? Login</button>
+                </div>
+            </div>
+
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="view">
+                <div class="navbar">
+                    <div>Dashboard</div>
+                    <div style="display: flex; gap: 20px; align-items: center;">
+                        <span id="current-user">Welcome!</span>
+                        <button class="logout-btn" onclick="logout()">Logout</button>
+                    </div>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('profile-tab')">Profile</button>
+                    <button class="tab-btn" onclick="switchTab('services-tab')">Services</button>
+                    <button class="tab-btn" onclick="switchTab('usage-tab')">Usage</button>
+                    <button class="tab-btn" onclick="switchTab('invoices-tab')">Invoices</button>
+                    <button class="tab-btn" onclick="switchTab('payments-tab')">Payments</button>
+                </div>
+
+                <!-- Profile Tab -->
+                <div id="profile-tab" class="tab-content active">
+                    <h3 style="margin-bottom: 20px;">My Profile</h3>
+                    <div id="profile-message"></div>
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="profile-fullname">
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <textarea id="profile-address" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" id="profile-phone">
+                    </div>
+                    <button class="btn" onclick="updateProfile()" style="width: 200px;">Update</button>
+                </div>
+
+                <!-- Services Tab -->
+                <div id="services-tab" class="tab-content">
+                    <h3 style="margin-bottom: 20px;">My Services</h3>
+                    <div id="services-message"></div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Service Name</th>
+                                <th>Type</th>
+                                <th>Monthly Charge</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="services-list">
+                            <tr>
+                                <td colspan="4" style="text-align: center;">No services found</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Usage Tab -->
+                <div id="usage-tab" class="tab-content">
+                    <h3 style="margin-bottom: 20px;">Usage History</h3>
+                    <div id="usage-message"></div>
+                    <div class="form-group" style="max-width: 300px;">
+                        <label>Select Service</label>
+                        <select id="service-select" onchange="loadUsage()">
+                            <option value="">-- Select a service --</option>
+                        </select>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Quantity</th>
+                                <th>Unit</th>
+                                <th>Cost</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usage-list">
+                            <tr>
+                                <td colspan="4" style="text-align: center;">Select a service</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Invoices Tab -->
+                <div id="invoices-tab" class="tab-content">
+                    <h3 style="margin-bottom: 20px;">Invoices</h3>
+                    <div id="invoices-message"></div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Invoice #</th>
+                                <th>Period</th>
+                                <th>Amount</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoices-list">
+                            <tr>
+                                <td colspan="5" style="text-align: center;">No invoices</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Payments Tab -->
+                <div id="payments-tab" class="tab-content">
+                    <h3 style="margin-bottom: 20px;">Record Payment</h3>
+                    <div id="payments-message"></div>
+                    <div style="max-width: 500px;">
+                        <div class="form-group">
+                            <label>Select Invoice</label>
+                            <select id="payment-invoice-select"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Amount</label>
+                            <input type="number" id="payment-amount" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>Method</label>
+                            <select id="payment-method">
+                                <option value="CREDIT_CARD">Credit Card</option>
+                                <option value="DEBIT_CARD">Debit Card</option>
+                                <option value="BANK_TRANSFER">Bank Transfer</option>
+                            </select>
+                        </div>
+                        <button class="btn" onclick="recordPayment()" style="width: 200px;">Record Payment</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8080/api';
+        let token = localStorage.getItem('token');
+        let currentUser = localStorage.getItem('currentUser');
+        let customerId = localStorage.getItem('customerId');
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (token && currentUser) {
+                switchView('dashboard-view');
+                document.getElementById('current-user').textContent = `Welcome, ${currentUser}!`;
+                loadDashboardData();
+            }
+        });
+
+        function switchView(viewId) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabId === 'profile-tab') loadProfileData();
+            if (tabId === 'services-tab') loadServices();
+            if (tabId === 'invoices-tab') loadInvoices();
+        }
+
+        async function login() {
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            const messageDiv = document.getElementById('login-message');
+
+            if (!username || !password) {
+                showMessage(messageDiv, 'Please fill in all fields', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    const responseData = data.data || data;
+                    token = responseData.token || responseData.accessToken;
+                    currentUser = responseData.username || username;
+                    // backend returns userId; frontend expects customerId -- support both
+                    customerId = responseData.userId || responseData.customerId;
+
+                    localStorage.setItem('token', token);
+                    localStorage.setItem('currentUser', currentUser);
+                    localStorage.setItem('customerId', customerId);
+
+                    document.getElementById('current-user').textContent = `Welcome, ${currentUser}!`;
+                    switchView('dashboard-view');
+                    loadDashboardData();
+                } else {
+                    showMessage(messageDiv, data.message || 'Login failed', 'error');
+                }
+            } catch (error) {
+                showMessage(messageDiv, 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function register() {
+            const username = document.getElementById('register-username').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const fullName = document.getElementById('register-fullname').value;
+            const address = document.getElementById('register-address').value;
+            const phoneNumber = document.getElementById('register-phone').value;
+            const messageDiv = document.getElementById('register-message');
+
+            if (!username || !email || !password || !fullName || !address || !phoneNumber) {
+                showMessage(messageDiv, 'Please fill in all fields', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    // include confirmPassword and default role so server validation passes
+                    body: JSON.stringify({ username, email, password, confirmPassword: password, role: 'CUSTOMER', fullName, address, phoneNumber })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showMessage(messageDiv, 'Registration successful! Please login.', 'success');
+                    setTimeout(() => switchView('login-view'), 1500);
+                } else {
+                    showMessage(messageDiv, data.message || 'Registration failed', 'error');
+                }
+            } catch (error) {
+                showMessage(messageDiv, 'Error: ' + error.message, 'error');
+            }
+        }
+
+        function logout() {
+            token = null;
+            currentUser = null;
+            customerId = null;
+            localStorage.clear();
+            switchView('login-view');
+            document.getElementById('login-username').value = '';
+            document.getElementById('login-password').value = '';
+        }
+
+        async function loadDashboardData() {
+            await loadProfileData();
+            await loadServices();
+            await loadInvoices();
+        }
+
+        async function loadProfileData() {
+            const messageDiv = document.getElementById('profile-message');
+            try {
+                const response = await fetch(`${API_URL}/customers/${customerId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const customer = data.data || data;
+                    document.getElementById('profile-fullname').value = customer.fullName || '';
+                    document.getElementById('profile-address').value = customer.address || '';
+                    document.getElementById('profile-phone').value = customer.phoneNumber || '';
+                } else {
+                    showMessage(messageDiv, 'Failed to load profile', 'error');
+                }
+            } catch (error) {
+                showMessage(messageDiv, 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function updateProfile() {
+            const fullName = document.getElementById('profile-fullname').value;
+            const address = document.getElementById('profile-address').value;
+            const phoneNumber = document.getElementById('profile-phone').value;
+            const messageDiv = document.getElementById('profile-message');
+
+            try {
+                const response = await fetch(`${API_URL}/customers/${customerId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ fullName, address, phoneNumber })
+                });
+
+                if (response.ok) {
+                    showMessage(messageDiv, 'Profile updated!', 'success');
+                } else {
+                    showMessage(messageDiv, 'Failed to update', 'error');
+                }
+            } catch (error) {
+                showMessage(messageDiv, 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function loadServices() {
+            try {
+                const response = await fetch(`${API_URL}/customers/${customerId}/services`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const services = Array.isArray(data) ? data : (data.data || []);
+
+                    if (services.length === 0) {
+                        document.getElementById('services-list').innerHTML = '<tr><td colspan="4" style="text-align: center;">No services</td></tr>';
+                        return;
+                    }
+
+                    document.getElementById('services-list').innerHTML = services.map(s => `
+                        <tr>
+                            <td>${s.serviceName}</td>
+                            <td>${s.serviceType}</td>
+                            <td>$${(s.monthlyCharge || 0).toFixed(2)}</td>
+                            <td><span class="badge badge-success">Active</span></td>
+                        </tr>
+                    `).join('');
+
+                    document.getElementById('service-select').innerHTML = '<option value="">-- Select --</option>' +
+                        services.map(s => `<option value="${s.serviceId}">${s.serviceName}</option>`).join('');
+                }
+            } catch (error) {
+                console.error('Error loading services:', error);
+            }
+        }
+
+        async function loadUsage() {
+            const serviceId = document.getElementById('service-select').value;
+            if (!serviceId) {
+                document.getElementById('usage-list').innerHTML = '<tr><td colspan="4">Select a service</td></tr>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/services/${serviceId}/usage`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const usage = Array.isArray(data) ? data : (data.data || []);
+
+                    if (usage.length === 0) {
+                        document.getElementById('usage-list').innerHTML = '<tr><td colspan="4">No records</td></tr>';
+                        return;
+                    }
+
+                    document.getElementById('usage-list').innerHTML = usage.map(u => `
+                        <tr>
+                            <td>${new Date(u.recordDate).toLocaleDateString()}</td>
+                            <td>${(u.quantityUsed || 0).toFixed(2)}</td>
+                            <td>${u.unit}</td>
+                            <td>$${(u.cost || 0).toFixed(2)}</td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading usage:', error);
+            }
+        }
+
+        async function loadInvoices() {
+            try {
+                const response = await fetch(`${API_URL}/customers/${customerId}/invoices`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const invoices = Array.isArray(data) ? data : (data.data || []);
+
+                    if (invoices.length === 0) {
+                        document.getElementById('invoices-list').innerHTML = '<tr><td colspan="5">No invoices</td></tr>';
+                        document.getElementById('payment-invoice-select').innerHTML = '<option>No invoices</option>';
+                        return;
+                    }
+
+                    document.getElementById('invoices-list').innerHTML = invoices.map(i => `
+                        <tr>
+                            <td>#${i.invoiceId}</td>
+                            <td>${i.billingPeriod}</td>
+                            <td>$${(i.totalAmount || 0).toFixed(2)}</td>
+                            <td>${i.dueDate}</td>
+                            <td><span class="badge ${i.status === 'PAID' ? 'badge-success' : 'badge-warning'}">${i.status}</span></td>
+                        </tr>
+                    `).join('');
+
+                    document.getElementById('payment-invoice-select').innerHTML = '<option value="">-- Select --</option>' +
+                        invoices.filter(i => i.status !== 'PAID').map(i => `<option value="${i.invoiceId}">Invoice #${i.invoiceId}</option>`).join('');
+                }
+            } catch (error) {
+                console.error('Error loading invoices:', error);
+            }
+        }
+
+        async function recordPayment() {
+            const invoiceId = document.getElementById('payment-invoice-select').value;
+            const amount = document.getElementById('payment-amount').value;
+            const paymentMethod = document.getElementById('payment-method').value;
+            const messageDiv = document.getElementById('payments-message');
+
+            if (!invoiceId || !amount) {
+                showMessage(messageDiv, 'Please fill in all fields', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/invoices/${invoiceId}/payments`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ amount: parseFloat(amount), paymentMethod })
+                });
+
+                if (response.ok) {
+                    showMessage(messageDiv, 'Payment recorded!', 'success');
+                    document.getElementById('payment-amount').value = '';
+                    await loadInvoices();
+                } else {
+                    showMessage(messageDiv, 'Payment failed', 'error');
+                }
+            } catch (error) {
+                showMessage(messageDiv, 'Error: ' + error.message, 'error');
+            }
+        }
+
+        function showMessage(element, message, type) {
+            element.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => element.innerHTML = '', 5000);
+        }
+    </script>
+</body>
+</html>
