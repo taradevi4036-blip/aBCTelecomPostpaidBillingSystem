@@ -683,3 +683,30 @@ The system can be deployed immediately to any environment (Local, Docker, Kubern
 ---
 
 **Project Status: 🚀 READY FOR PRODUCTION**
+
+---
+
+## 🤖 Chatbot Integration (Spring AI)
+
+ABC Telecom now features a chatbot powered by Spring AI. Users can interact with the chatbot to:
+- View their profile details
+- Check payment history
+- Review service usage
+
+### Endpoints
+- `POST /api/chatbot/ask` — Ask any question about your account/services
+- `GET /api/chatbot/profile/{customerId}` — Get your profile details
+- `GET /api/chatbot/payments/{invoiceId}` — View payments for an invoice
+- `GET /api/chatbot/usage/{serviceId}` — View usage for a service
+
+### How it works
+The chatbot uses Spring AI (OpenAI) to understand user queries and fetch relevant data from the system. It combines natural language responses with real-time account information.
+
+### Configuration
+- Add your OpenAI API key in `src/main/resources/application-ai.properties`:
+  ```properties
+  spring.ai.openai.api-key=YOUR_OPENAI_API_KEY
+  spring.ai.openai.model=gpt-3.5-turbo
+  ```
+
+---

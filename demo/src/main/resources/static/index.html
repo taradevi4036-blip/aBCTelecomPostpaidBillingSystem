@@ -324,7 +324,8 @@
                     <button class="tab-btn" onclick="switchTab('usage-tab')">Usage</button>
                     <button class="tab-btn" onclick="switchTab('invoices-tab')">Invoices</button>
                     <button class="tab-btn" onclick="switchTab('payments-tab')">Payments</button>
-                </div>
+                    <button class="tab-btn" onclick="switchTab('chatbot-tab')">Chatbot</button>
+                    </div>
 
                 <!-- Profile Tab -->
                 <div id="profile-tab" class="tab-content active">
@@ -437,6 +438,37 @@
                             </select>
                         </div>
                         <button class="btn" onclick="recordPayment()" style="width: 200px;">Record Payment</button>
+                    </div>
+                </div>
+
+                <!-- Chatbot Tab -->
+                <div id="chatbot-tab" class="tab-content">
+                    <h3 style="margin-bottom: 20px;">Assistant</h3>
+                    <div id="chatbot-message"></div>
+                    <div style="display:flex; gap:20px; align-items:flex-start;">
+                        <div style="flex:1;">
+                            <div id="chat-window" style="height:300px; overflow:auto; border:1px solid #eee; padding:12px; border-radius:6px; background:#fafafa;"></div>
+                            <div style="display:flex; gap:10px; margin-top:10px;">
+                                <input id="chat-input" type="text" placeholder="Ask about services, payments, usage..." style="flex:1; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                                <button class="btn" onclick="sendChat()" style="width:120px;">Send</button>
+                            </div>
+                        </div>
+
+                        <div style="width:320px;">
+                            <div style="margin-bottom:12px;">
+                                <button class="btn" style="width:100%;" onclick="chatbotShowProfile()">Show My Profile</button>
+                            </div>
+
+                            <div style="margin-bottom:12px;">
+                                <input id="chat-invoice-id" placeholder="Invoice ID" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px; margin-bottom:6px;">
+                                <button class="btn" style="width:100%;" onclick="chatbotShowPayments()">Show Payments</button>
+                            </div>
+
+                            <div>
+                                <input id="chat-service-id" placeholder="Service ID" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px; margin-bottom:6px;">
+                                <button class="btn" style="width:100%;" onclick="chatbotShowUsage()">Show Usage</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -743,6 +775,73 @@
         function showMessage(element, message, type) {
             element.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
             setTimeout(() => element.innerHTML = '', 5000);
+        }
+
+        // Chatbot helpers
+        function appendChatMessage(sender, text) {
+            const win = document.getElementById('chat-window');
+            const el = document.createElement('div');
+            el.style.marginBottom = '10px';
+            el.innerHTML = `<strong>${sender}:</strong> <div style="margin-top:6px;">${text}</div>`;
+            win.appendChild(el);
+            win.scrollTop = win.scrollHeight;
+        }
+
+        async function sendChat() {
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+            appendChatMessage('You', msg);
+            input.value = '';
+
+            try {
+                const res = await fetch(`${API_URL}/chatbot/ask`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain', 'Authorization': `Bearer ${token}` },
+                    body: msg
+                });
+                const text = res.ok ? await res.text() : `Error: ${res.status}`;
+                appendChatMessage('Assistant', text);
+            } catch (err) {
+                appendChatMessage('Assistant', 'Error: ' + err.message);
+            }
+        }
+
+        async function chatbotShowProfile() {
+            appendChatMessage('You', 'Show my profile');
+            try {
+                const res = await fetch(`${API_URL}/chatbot/profile/${customerId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                appendChatMessage('Assistant', `<pre>${JSON.stringify(data, null, 2)}</pre>`);
+            } catch (err) {
+                appendChatMessage('Assistant', 'Error: ' + err.message);
+            }
+        }
+
+        async function chatbotShowPayments() {
+            const invoiceId = document.getElementById('chat-invoice-id').value.trim();
+            if (!invoiceId) { appendChatMessage('Assistant', 'Please enter invoice id'); return; }
+            appendChatMessage('You', `Show payments for invoice ${invoiceId}`);
+            try {
+                const res = await fetch(`${API_URL}/chatbot/payments/${invoiceId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                appendChatMessage('Assistant', `<pre>${JSON.stringify(data, null, 2)}</pre>`);
+            } catch (err) {
+                appendChatMessage('Assistant', 'Error: ' + err.message);
+            }
+        }
+
+        async function chatbotShowUsage() {
+            const serviceId = document.getElementById('chat-service-id').value.trim();
+            if (!serviceId) { appendChatMessage('Assistant', 'Please enter service id'); return; }
+            appendChatMessage('You', `Show usage for service ${serviceId}`);
+            try {
+                const res = await fetch(`${API_URL}/chatbot/usage/${serviceId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                appendChatMessage('Assistant', `<pre>${JSON.stringify(data, null, 2)}</pre>`);
+            } catch (err) {
+                appendChatMessage('Assistant', 'Error: ' + err.message);
+            }
         }
     </script>
 </body>
